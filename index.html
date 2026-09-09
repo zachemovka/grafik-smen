@@ -239,7 +239,8 @@ SUPABASE_KEY
 let points = [];
 let pointRows = [];
 
-let employees = JSON.parse(localStorage.getItem("employees")) || [];
+let employees = [];
+let employeeRows = [];
 
 let shifts = JSON.parse(localStorage.getItem("shifts")) || {};
 
@@ -257,7 +258,17 @@ if (error) {
     alert("Ошибка загрузки точек: " + error.message);
     return;
 }
+async function loadEmployeesFromSupabase() { const { data, error } = await supabaseClient .from("employees") .select("*") .order("name");
+if (error) {
+    alert("Ошибка загрузки сотрудников: " + error.message);
+    return;
+}
 
+employeeRows = data || [];
+employees = employeeRows.map(employee => employee.name);
+
+renderHome();
+}
 pointRows = data || [];
 points = pointRows.map(point => point.name);
 
@@ -804,6 +815,7 @@ document.getElementById(
 
 renderHome();
 loadPointsFromSupabase();
+loadEmployeesFromSupabase();
 </script>
 
 </body>
