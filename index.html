@@ -258,6 +258,12 @@ if (error) {
     alert("Ошибка загрузки точек: " + error.message);
     return;
 }
+
+pointRows = data || [];
+points = pointRows.map(point => point.name);
+
+renderHome();
+}
 async function loadEmployeesFromSupabase() { const { data, error } = await supabaseClient .from("employees") .select("*") .order("name");
 if (error) {
     alert("Ошибка загрузки сотрудников: " + error.message);
@@ -266,11 +272,6 @@ if (error) {
 
 employeeRows = data || [];
 employees = employeeRows.map(employee => employee.name);
-
-renderHome();
-}
-pointRows = data || [];
-points = pointRows.map(point => point.name);
 
 renderHome();
 }
