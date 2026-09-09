@@ -236,13 +236,8 @@ SUPABASE_URL,
 SUPABASE_KEY
 );
 
-let points = JSON.parse(localStorage.getItem("points")) || [
-"Чижик Мытищи",
-"Чижик Пушкино",
-"Победа",
-"Тарасовка",
-"Пушкинский"
-];
+let points = [];
+let pointRows = [];
 
 let employees = JSON.parse(localStorage.getItem("employees")) || [];
 
@@ -266,7 +261,18 @@ alert("Supabase работает! Точек в базе: " + data.length);
 }
 testSupabase();
 alert("Тест запустился");
-function saveData() {
+async function loadPointsFromSupabase() { const { data, error } = await supabase .from("points") .select("*") .order("name");
+if (error) {
+    alert("Ошибка загрузки точек: " + error.message);
+    return;
+}
+
+pointRows = data || [];
+points = pointRows.map(point => point.name);
+
+renderHome();
+}
+    function saveData() {
 
 localStorage.setItem("points", JSON.stringify(points));
 
@@ -806,7 +812,7 @@ document.getElementById(
 
 
 renderHome();
-
+loadPointsFromSupabase();
 </script>
 
 </body>
