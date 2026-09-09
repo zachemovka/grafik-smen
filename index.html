@@ -231,7 +231,7 @@ button {
 
 const SUPABASE_KEY = "sb_publishable_ydyKuXf6PIb5al-E9-Nuhw_WD56TiaF";
 
-const supabase = window.supabase.createClient(
+const supabaseClient = window.supabase.createClient(
 SUPABASE_URL,
 SUPABASE_KEY
 );
@@ -251,7 +251,7 @@ let selectedDateKey = null;
 
 let selectedEmployees = [];
 
-async function testSupabase() { const { data, error } = await supabase .from("points") .select("*");
+async function testSupabase() { const { data, error } = await supabaseClient .from("points") .select("*");
 if (error) {
     alert("Ошибка Supabase: " + error.message);
     return;
@@ -261,7 +261,7 @@ alert("Supabase работает! Точек в базе: " + data.length);
 }
 testSupabase();
 alert("Тест запустился");
-async function loadPointsFromSupabase() { const { data, error } = await supabase .from("points") .select("*") .order("name");
+async function loadPointsFromSupabase() { const { data, error } = await supabaseClient .from("points") .select("*") .order("name");
 if (error) {
     alert("Ошибка загрузки точек: " + error.message);
     return;
