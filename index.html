@@ -426,18 +426,24 @@ renderHome();
 }
 
 
-function addEmployee() {
-
-let name = prompt("Введите имя сотрудника:");
-
+async function addEmployee() { let name = prompt("Введите имя сотрудника:");
 if (name && name.trim()) {
+    const { data, error } = await supabaseClient
+        .from("employees")
+        .insert({ name: name.trim() })
+        .select()
+        .single();
 
-employees.push(name.trim());
+    if (error) {
+        alert("Ошибка добавления сотрудника: " + error.message);
+        return;
+    }
 
-saveData();
+    employeeRows.push(data);
+    employees.push(data.name);
 
-renderHome();
-
+    renderHome();
+}
 }
 
 }
