@@ -274,8 +274,22 @@ employeesList.innerHTML = "";
 for (let i = 0; i < points.length; i++) {
 
 pointsList.innerHTML +=
-'<div class="point" onclick="openPoint(' + i + ')">📍 ' +
-points[i] +
+'<div class="point">' +
+
+'<span onclick="openPoint(' + i + ')">' +
+'📍 ' + points[i] +
+'</span>' +
+
+'<br><br>' +
+
+'<button class="gray" onclick="editPoint(' + i + ')">' +
+'✏️ Изменить' +
+'</button> ' +
+
+'<button class="gray" onclick="deletePoint(' + i + ')">' +
+'🗑 Удалить' +
+'</button>' +
+
 '</div>';
 
 }
@@ -284,8 +298,20 @@ points[i] +
 for (let i = 0; i < employees.length; i++) {
 
 employeesList.innerHTML +=
-'<div class="employee-choice">👤 ' +
-employees[i] +
+'<div class="employee-choice">' +
+
+'👤 ' + employees[i] +
+
+'<br><br>' +
+
+'<button class="gray" onclick="editEmployee(' + i + ')">' +
+'✏️ Изменить' +
+'</button> ' +
+
+'<button class="gray" onclick="deleteEmployee(' + i + ')">' +
+'🗑 Удалить' +
+'</button>' +
+
 '</div>';
 
 }
@@ -318,6 +344,63 @@ renderHome();
 }
 
 
+function editPoint(index) {
+
+let name = prompt(
+"Изменить название точки:",
+points[index]
+);
+
+if (name && name.trim()) {
+
+let oldName = points[index];
+
+let newName = name.trim();
+
+points[index] = newName;
+
+if (shifts[oldName]) {
+
+shifts[newName] = shifts[oldName];
+
+delete shifts[oldName];
+
+}
+
+saveData();
+
+renderHome();
+
+}
+
+}
+
+
+function deletePoint(index) {
+
+if (
+confirm(
+"Удалить точку «" +
+points[index] +
+"»?"
+)
+) {
+
+let name = points[index];
+
+points.splice(index, 1);
+
+delete shifts[name];
+
+saveData();
+
+renderHome();
+
+}
+
+}
+
+
 function addEmployee() {
 
 let name = prompt("Введите имя сотрудника:");
@@ -325,6 +408,85 @@ let name = prompt("Введите имя сотрудника:");
 if (name && name.trim()) {
 
 employees.push(name.trim());
+
+saveData();
+
+renderHome();
+
+}
+
+}
+
+
+function editEmployee(index) {
+
+let oldName = employees[index];
+
+let newName = prompt(
+"Изменить имя сотрудника:",
+oldName
+);
+
+if (newName && newName.trim()) {
+
+newName = newName.trim();
+
+employees[index] = newName;
+
+for (let point in shifts) {
+
+for (let date in shifts[point]) {
+
+shifts[point][date] =
+shifts[point][date].map(function(name) {
+
+return name === oldName
+? newName
+: name;
+
+});
+
+}
+
+}
+
+saveData();
+
+renderHome();
+
+}
+
+}
+
+
+function deleteEmployee(index) {
+
+let name = employees[index];
+
+if (
+confirm(
+"Удалить сотрудника «" +
+name +
+"»?"
+)
+) {
+
+employees.splice(index, 1);
+
+for (let point in shifts) {
+
+for (let date in shifts[point]) {
+
+shifts[point][date] =
+shifts[point][date].filter(function(employee) {
+
+return employee !== name;
+
+});
+
+}
+
+}
 
 saveData();
 
