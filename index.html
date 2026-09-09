@@ -484,43 +484,41 @@ renderHome();
 }
 
 
-function deleteEmployee(index) {
-
-let name = employees[index];
-
+async function deleteEmployee(index) { let name = employees[index];
 if (
-confirm(
-"Удалить сотрудника «" +
-name +
-"»?"
-)
+    confirm(
+        "Удалить сотрудника «" +
+        name +
+        "»?"
+    )
 ) {
+    const employeeId = employeeRows[index].id;
 
-employees.splice(index, 1);
+    const { error } = await supabaseClient
+        .from("employees")
+        .delete()
+        .eq("id", employeeId);
 
-for (let point in shifts) {
+    if (error) {
+        alert("Ошибка удаления сотрудника: " + error.message);
+        return;
+    }
 
-for (let date in shifts[point]) {
+    employees.splice(index, 1);
+    employeeRows.splice(index, 1);
 
-shifts[point][date] =
-shifts[point][date].filter(function(employee) {
+    for (let point in shifts) {
+        for (let date in shifts[point]) {
+            shifts[point][date] =
+                shifts[point][date].filter(function(employee) {
+                    return employee !== name;
+                });
+        }
+    }
 
-return employee !== name;
-
-});
-
+    renderHome();
 }
-
 }
-
-saveData();
-
-renderHome();
-
-}
-
-}
-
 
 function openPoint(index) {
 
