@@ -353,23 +353,25 @@ employeesList.innerHTML =
 }
 
 
-function addPoint() {
-
-let name = prompt("Введите название точки:");
-
+async function addPoint() { let name = prompt("Введите название точки:");
 if (name && name.trim()) {
+    const { data, error } = await supabaseClient
+        .from("points")
+        .insert({ name: name.trim() })
+        .select()
+        .single();
 
-points.push(name.trim());
+    if (error) {
+        alert("Ошибка добавления точки: " + error.message);
+        return;
+    }
 
-saveData();
+    pointRows.push(data);
+    points.push(data.name);
 
-renderHome();
-
+    renderHome();
 }
-
 }
-
-
 function editPoint(index) {
 
 let name = prompt(
