@@ -133,6 +133,7 @@ button {
     background: #cfaef5;
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -226,7 +227,14 @@ button {
 </div>
 
 
-<script>
+<script>const SUPABASE_URL = "https://qurvfafwikiasaoxsbfr.supabase.co";
+
+const SUPABASE_KEY = "sb_publishable_ydyKuXf6PIb5al-E9-Nuhw_WD56TiaF";
+
+const supabase = window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
 
 let points = JSON.parse(localStorage.getItem("points")) || [
 "Чижик Мытищи",
@@ -248,7 +256,16 @@ let selectedDateKey = null;
 
 let selectedEmployees = [];
 
+async function testSupabase() { const { data, error } = await supabase .from("points") .select("*");
+if (error) {
+    alert("Ошибка Supabase: " + error.message);
+    return;
+}
 
+alert("Supabase работает! Точек в базе: " + data.length);
+}
+testSupabase();
+    
 function saveData() {
 
 localStorage.setItem("points", JSON.stringify(points));
