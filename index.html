@@ -251,16 +251,7 @@ let selectedDateKey = null;
 
 let selectedEmployees = [];
 
-async function testSupabase() { const { data, error } = await supabaseClient .from("points") .select("*");
-if (error) {
-    alert("Ошибка Supabase: " + error.message);
-    return;
-}
 
-alert("Supabase работает! Точек в базе: " + data.length);
-}
-testSupabase();
-alert("Тест запустился");
 async function loadPointsFromSupabase() { const { data, error } = await supabaseClient .from("points") .select("*") .order("name");
 if (error) {
     alert("Ошибка загрузки точек: " + error.message);
@@ -812,7 +803,7 @@ document.getElementById(
 
 
 renderHome();
-
+loadPointsFromSupabase();
 </script>
 
 </body>
