@@ -404,30 +404,23 @@ renderHome();
 }
 
 
-function deletePoint(index) {
+async function deletePoint(index) { if ( confirm( "Удалить точку «" + points[index] + "»?" ) ) { const pointId = pointRows[index].id;
+    const { error } = await supabaseClient
+        .from("points")
+        .delete()
+        .eq("id", pointId);
 
-if (
-confirm(
-"Удалить точку «" +
-points[index] +
-"»?"
-)
-) {
+    if (error) {
+        alert("Ошибка удаления точки: " + error.message);
+        return;
+    }
 
-let name = points[index];
+    points.splice(index, 1);
+    pointRows.splice(index, 1);
 
-points.splice(index, 1);
-
-delete shifts[name];
-
-saveData();
-
-renderHome();
-
+    renderHome();
 }
-
 }
-
 
 async function addEmployee() { let name = prompt("Введите имя сотрудника:");
 if (name && name.trim()) {
