@@ -6,223 +6,630 @@
 <title>График смен</title>
 
 <style>
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
-    padding: 20px;
     font-family: Arial, sans-serif;
     background: #f5f2f8;
     color: #222;
+}
+
+.app {
+    max-width: 900px;
+    margin: auto;
+    padding: 15px;
 }
 
 h1 {
     text-align: center;
 }
 
-.box {
+.card {
     background: white;
-    padding: 20px;
-    margin: 15px 0;
-    border-radius: 15px;
+    padding: 18px;
+    border-radius: 16px;
+    margin-bottom: 15px;
+}
+
+.point {
+    background: #f1ebf7;
+    padding: 15px;
+    border-radius: 12px;
+    margin: 8px 0;
+    cursor: pointer;
+    font-size: 17px;
 }
 
 button {
-    padding: 10px 15px;
-    margin: 5px;
-    border: 0;
+    border: none;
     border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.purple {
+    background: #8e63c7;
+    color: white;
+}
+
+.gray {
+    background: #eeeeee;
+}
+
+.calendar {
+    background: white;
+    border-radius: 16px;
+    padding: 10px;
+}
+
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.day {
+    min-height: 100px;
+    border: 1px solid #e5e5e5;
+    padding: 5px;
     cursor: pointer;
 }
 
-.add {
-    background: #8e63c7;
-    color: white;
+.day-number {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.employee {
+    background: #e7d8f7;
+    border-radius: 6px;
+    padding: 3px;
+    font-size: 11px;
+    margin-top: 3px;
+}
+
+.empty-day {
+    background: #fafafa;
+}
+
+.modal-background {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+}
+
+.modal {
+    background: white;
     width: 100%;
+    max-width: 400px;
+    border-radius: 18px;
+    padding: 20px;
 }
 
-.item {
+.employee-choice {
     padding: 12px;
-    margin: 8px 0;
-    background: #f3eff7;
+    background: #f3eef8;
     border-radius: 10px;
+    margin: 7px 0;
+    cursor: pointer;
 }
 
-.delete {
-    float: right;
-    background: #f0dede;
-}
-
-.edit {
-    float: right;
-    background: #e3d9ef;
+.selected {
+    background: #cfaef5;
 }
 </style>
 </head>
 
 <body>
 
+<div class="app">
+
 <h1>🗓️ График смен</h1>
 
-<div class="box">
-<h2>📍 Точки</h2>
+<div id="homeScreen">
 
-<div id="points"></div>
+<div class="card">
 
-<button class="add" onclick="addPoint()">
+<h2>📍 Выберите точку</h2>
+
+<div id="pointsList"></div>
+
+<button class="purple" onclick="addPoint()">
 ＋ Добавить точку
 </button>
+
+</div>
+
+<div class="card">
+
+<h2>👥 Сотрудники</h2>
+
+<div id="employeesList"></div>
+
+<button class="purple" onclick="addEmployee()">
+＋ Добавить сотрудника
+</button>
+
+</div>
+
+</div>
+
+<div id="calendarScreen" style="display:none">
+
+<button class="gray" onclick="goHome()">
+← Точки
+</button>
+
+<h2 id="pointTitle"></h2>
+<div class="month-nav">
+    <button class="gray" onclick="previousMonth()">←</button>
+    <h2 id="monthTitle"></h2>
+    <button class="gray" onclick="nextMonth()">→</button>
+</div>
+
+<div class="calendar">
+
+<div class="weekdays">
+<div>ПН</div>
+<div>ВТ</div>
+<div>СР</div>
+<div>ЧТ</div>
+<div>ПТ</div>
+<div>СБ</div>
+<div>ВС</div>
+</div>
+
+<div id="days" class="days"></div>
+
+</div>
+
+</div>
+
 </div>
 
 
-<div class="box">
-<h2>👥 Сотрудники</h2>
+<div id="modalBackground" class="modal-background">
 
-<div id="employees"></div>
+<div class="modal">
 
-<button class="add" onclick="addEmployee()">
-＋ Добавить сотрудника
+<h2 id="modalDate"></h2>
+
+<p><b>Кто работает?</b></p>
+
+<div id="modalEmployees"></div>
+
+<button class="gray" onclick="closeModal()">
+Отмена
 </button>
+
+<button class="purple" onclick="saveShift()">
+Сохранить
+</button>
+
+</div>
+
 </div>
 
 
 <script>
 
-let points = [
-    "Чижик Мытищи",
-    "Чижик Пушкино",
-    "Победа",
-    "Тарасовка",
-    "Пушкинский"
+let points = JSON.parse(localStorage.getItem("points")) || [
+"Чижик Мытищи",
+"Чижик Пушкино",
+"Победа",
+"Тарасовка",
+"Пушкинский"
 ];
 
-let employees = [];
+let employees = JSON.parse(localStorage.getItem("employees")) || [];
+
+let shifts = JSON.parse(localStorage.getItem("shifts")) || {};
+
+let selectedPoint = null;
+
+let currentDate = new Date();
+
+let selectedDateKey = null;
+
+let selectedEmployees = [];
 
 
-function showPoints() {
+function saveData() {
 
-    let list = document.getElementById("points");
+localStorage.setItem("points", JSON.stringify(points));
 
-    list.innerHTML = "";
+localStorage.setItem("employees", JSON.stringify(employees));
 
-    for (let i = 0; i < points.length; i++) {
+localStorage.setItem("shifts", JSON.stringify(shifts));
 
-        list.innerHTML +=
-        '<div class="item">' +
-        points[i] +
-
-        '<button class="delete" onclick="deletePoint(' + i + ')">🗑</button>' +
-
-        '<button class="edit" onclick="editPoint(' + i + ')">✏️</button>' +
-
-        '</div>';
-    }
 }
 
 
-function showEmployees() {
+function renderHome() {
 
-    let list = document.getElementById("employees");
+let pointsList = document.getElementById("pointsList");
 
-    list.innerHTML = "";
+let employeesList = document.getElementById("employeesList");
 
-    for (let i = 0; i < employees.length; i++) {
+pointsList.innerHTML = "";
 
-        list.innerHTML +=
-        '<div class="item">' +
-        employees[i] +
+employeesList.innerHTML = "";
 
-        '<button class="delete" onclick="deleteEmployee(' + i + ')">🗑</button>' +
 
-        '<button class="edit" onclick="editEmployee(' + i + ')">✏️</button>' +
+for (let i = 0; i < points.length; i++) {
 
-        '</div>';
-    }
+pointsList.innerHTML +=
+'<div class="point" onclick="openPoint(' + i + ')">📍 ' +
+points[i] +
+'</div>';
+
+}
+
+
+for (let i = 0; i < employees.length; i++) {
+
+employeesList.innerHTML +=
+'<div class="employee-choice">👤 ' +
+employees[i] +
+'</div>';
+
+}
+
+
+if (employees.length === 0) {
+
+employeesList.innerHTML =
+"<p>Сотрудников пока нет</p>";
+
+}
+
 }
 
 
 function addPoint() {
 
-    let name = prompt("Название новой точки:");
+let name = prompt("Введите название точки:");
 
-    if (name) {
+if (name && name.trim()) {
 
-        points.push(name);
+points.push(name.trim());
 
-        showPoints();
-    }
+saveData();
+
+renderHome();
+
 }
 
-
-function editPoint(i) {
-
-    let name = prompt(
-        "Новое название точки:",
-        points[i]
-    );
-
-    if (name) {
-
-        points[i] = name;
-
-        showPoints();
-    }
-}
-
-
-function deletePoint(i) {
-
-    if (confirm("Удалить эту точку?")) {
-
-        points.splice(i, 1);
-
-        showPoints();
-    }
 }
 
 
 function addEmployee() {
 
-    let name = prompt("Имя сотрудника:");
+let name = prompt("Введите имя сотрудника:");
 
-    if (name) {
+if (name && name.trim()) {
 
-        employees.push(name);
+employees.push(name.trim());
 
-        showEmployees();
-    }
+saveData();
+
+renderHome();
+
+}
+
 }
 
 
-function editEmployee(i) {
+function openPoint(index) {
 
-    let name = prompt(
-        "Новое имя сотрудника:",
-        employees[i]
-    );
+selectedPoint = points[index];
 
-    if (name) {
+document.getElementById("homeScreen").style.display = "none";
 
-        employees[i] = name;
+document.getElementById("calendarScreen").style.display = "block";
 
-        showEmployees();
-    }
+document.getElementById("pointTitle").innerText =
+selectedPoint;
+
+renderCalendar();
+
 }
 
 
-function deleteEmployee(i) {
+function goHome() {
 
-    if (confirm("Удалить этого сотрудника?")) {
+document.getElementById("calendarScreen").style.display = "none";
 
-        employees.splice(i, 1);
+document.getElementById("homeScreen").style.display = "block";
 
-        showEmployees();
-    }
+renderHome();
+
 }
 
 
-showPoints();
-showEmployees();
+function previousMonth() {
+
+currentDate.setMonth(currentDate.getMonth() - 1);
+
+renderCalendar();
+
+}
+
+
+function nextMonth() {
+
+currentDate.setMonth(currentDate.getMonth() + 1);
+
+renderCalendar();
+
+}
+function renderCalendar() {
+
+let year = currentDate.getFullYear();
+let month = currentDate.getMonth();
+
+let months = [
+"Январь",
+"Февраль",
+"Март",
+"Апрель",
+"Май",
+"Июнь",
+"Июль",
+"Август",
+"Сентябрь",
+"Октябрь",
+"Ноябрь",
+"Декабрь"
+];
+
+document.getElementById("monthTitle").innerText =
+months[month] + " " + year;
+
+let daysContainer =
+document.getElementById("days");
+
+daysContainer.innerHTML = "";
+
+let firstDay =
+new Date(year, month, 1).getDay();
+
+if (firstDay === 0) {
+firstDay = 7;
+}
+
+let daysInMonth =
+new Date(year, month + 1, 0).getDate();
+
+
+for (let i = 1; i < firstDay; i++) {
+
+daysContainer.innerHTML +=
+'<div class="day empty-day"></div>';
+
+}
+
+
+for (let day = 1; day <= daysInMonth; day++) {
+
+let dateKey =
+year + "-" +
+String(month + 1).padStart(2, "0") +
+"-" +
+String(day).padStart(2, "0");
+
+
+let employeesForDay = [];
+
+
+if (
+shifts[selectedPoint] &&
+shifts[selectedPoint][dateKey]
+) {
+
+employeesForDay =
+shifts[selectedPoint][dateKey];
+
+}
+
+
+let html =
+'<div class="day" onclick="openDay(\'' +
+dateKey +
+'\')">' +
+
+'<div class="day-number">' +
+day +
+'</div>';
+
+
+for (
+let i = 0;
+i < employeesForDay.length;
+i++
+) {
+
+html +=
+'<div class="employee">👤 ' +
+employeesForDay[i] +
+'</div>';
+
+}
+
+
+html += '</div>';
+
+
+daysContainer.innerHTML += html;
+
+}
+
+}
+
+
+function openDay(dateKey) {
+
+selectedDateKey = dateKey;
+
+selectedEmployees = [];
+
+
+if (
+shifts[selectedPoint] &&
+shifts[selectedPoint][dateKey]
+) {
+
+selectedEmployees =
+shifts[selectedPoint][dateKey].slice();
+
+}
+
+
+let parts = dateKey.split("-");
+
+
+document.getElementById("modalDate").innerText =
+"📅 " +
+parts[2] + "." +
+parts[1] + "." +
+parts[0];
+
+
+renderEmployeeChoices();
+
+
+document.getElementById(
+"modalBackground"
+).style.display = "flex";
+
+}
+
+
+function renderEmployeeChoices() {
+
+let container =
+document.getElementById("modalEmployees");
+
+container.innerHTML = "";
+
+
+if (employees.length === 0) {
+
+container.innerHTML =
+"<p>Сначала добавьте сотрудников.</p>";
+
+return;
+
+}
+
+
+for (let i = 0; i < employees.length; i++) {
+
+let employee = employees[i];
+
+let className =
+"employee-choice";
+
+
+if (selectedEmployees.includes(employee)) {
+
+className += " selected";
+
+}
+
+
+container.innerHTML +=
+'<div class="' +
+className +
+'" onclick="toggleEmployee(' +
+i +
+')">👤 ' +
+employee +
+'</div>';
+
+}
+
+}
+
+
+function toggleEmployee(index) {
+
+let employee = employees[index];
+
+
+if (selectedEmployees.includes(employee)) {
+
+selectedEmployees =
+selectedEmployees.filter(function(name) {
+
+return name !== employee;
+
+});
+
+} else {
+
+selectedEmployees.push(employee);
+
+}
+
+
+renderEmployeeChoices();
+
+}
+
+
+function saveShift() {
+
+if (!shifts[selectedPoint]) {
+
+shifts[selectedPoint] = {};
+
+}
+
+
+shifts[selectedPoint][selectedDateKey] =
+selectedEmployees;
+
+
+saveData();
+
+
+closeModal();
+
+
+renderCalendar();
+
+}
+
+
+function closeModal() {
+
+document.getElementById(
+"modalBackground"
+).style.display = "none";
+
+}
+
+
+renderHome();
 
 </script>
 
 </body>
+
 </html>
