@@ -1,45 +1,228 @@
-<h1>📅 График смен</h1>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>График смен</title>
 
-<div class="calendar">
+<style>
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #f5f2f8;
+    color: #222;
+}
 
-  <table>
-    <thead>
-      <tr>
-        <th>Дата</th>
-        <th>День недели</th>
-        <th>Смена</th>
-      </tr>
-    </thead>
+h1 {
+    text-align: center;
+}
 
-    <tbody>
-      <tr>
-        <td>1 сентября</td>
-        <td>Вторник</td>
-        <td class="work">10:00–22:00</td>
-      </tr>
+.box {
+    background: white;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 15px;
+}
 
-      <tr>
-        <td>2 сентября</td>
-        <td>Среда</td>
-        <td class="day-off">Выходной</td>
-      </tr>
+button {
+    padding: 10px 15px;
+    margin: 5px;
+    border: 0;
+    border-radius: 10px;
+    cursor: pointer;
+}
 
-      <tr>
-        <td>3 сентября</td>
-        <td>Четверг</td>
-        <td class="work">10:00–22:00</td>
-      </tr>
+.add {
+    background: #8e63c7;
+    color: white;
+    width: 100%;
+}
 
-      <tr>
-        <td>4 сентября</td>
-        <td>Пятница</td>
-        <td class="day-off">Выходной</td>
-      </tr>
-    </tbody>
-  </table>
+.item {
+    padding: 12px;
+    margin: 8px 0;
+    background: #f3eff7;
+    border-radius: 10px;
+}
 
+.delete {
+    float: right;
+    background: #f0dede;
+}
+
+.edit {
+    float: right;
+    background: #e3d9ef;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🗓️ График смен</h1>
+
+<div class="box">
+<h2>📍 Точки</h2>
+
+<div id="points"></div>
+
+<button class="add" onclick="addPoint()">
+＋ Добавить точку
+</button>
 </div>
 
-<button class="button" onclick="alert('График смен работает!')">
-  Проверить приложение
+
+<div class="box">
+<h2>👥 Сотрудники</h2>
+
+<div id="employees"></div>
+
+<button class="add" onclick="addEmployee()">
+＋ Добавить сотрудника
 </button>
+</div>
+
+
+<script>
+
+let points = [
+    "Чижик Мытищи",
+    "Чижик Пушкино",
+    "Победа",
+    "Тарасовка",
+    "Пушкинский"
+];
+
+let employees = [];
+
+
+function showPoints() {
+
+    let list = document.getElementById("points");
+
+    list.innerHTML = "";
+
+    for (let i = 0; i < points.length; i++) {
+
+        list.innerHTML +=
+        '<div class="item">' +
+        points[i] +
+
+        '<button class="delete" onclick="deletePoint(' + i + ')">🗑</button>' +
+
+        '<button class="edit" onclick="editPoint(' + i + ')">✏️</button>' +
+
+        '</div>';
+    }
+}
+
+
+function showEmployees() {
+
+    let list = document.getElementById("employees");
+
+    list.innerHTML = "";
+
+    for (let i = 0; i < employees.length; i++) {
+
+        list.innerHTML +=
+        '<div class="item">' +
+        employees[i] +
+
+        '<button class="delete" onclick="deleteEmployee(' + i + ')">🗑</button>' +
+
+        '<button class="edit" onclick="editEmployee(' + i + ')">✏️</button>' +
+
+        '</div>';
+    }
+}
+
+
+function addPoint() {
+
+    let name = prompt("Название новой точки:");
+
+    if (name) {
+
+        points.push(name);
+
+        showPoints();
+    }
+}
+
+
+function editPoint(i) {
+
+    let name = prompt(
+        "Новое название точки:",
+        points[i]
+    );
+
+    if (name) {
+
+        points[i] = name;
+
+        showPoints();
+    }
+}
+
+
+function deletePoint(i) {
+
+    if (confirm("Удалить эту точку?")) {
+
+        points.splice(i, 1);
+
+        showPoints();
+    }
+}
+
+
+function addEmployee() {
+
+    let name = prompt("Имя сотрудника:");
+
+    if (name) {
+
+        employees.push(name);
+
+        showEmployees();
+    }
+}
+
+
+function editEmployee(i) {
+
+    let name = prompt(
+        "Новое имя сотрудника:",
+        employees[i]
+    );
+
+    if (name) {
+
+        employees[i] = name;
+
+        showEmployees();
+    }
+}
+
+
+function deleteEmployee(i) {
+
+    if (confirm("Удалить этого сотрудника?")) {
+
+        employees.splice(i, 1);
+
+        showEmployees();
+    }
+}
+
+
+showPoints();
+showEmployees();
+
+</script>
+
+</body>
+</html>
