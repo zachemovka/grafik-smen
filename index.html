@@ -850,11 +850,52 @@ document.getElementById(
 ).style.display = "none";
 
 }
+async function loadShiftsFromSupabase() {
+const { data, error } = await supabaseClient
+    .from("shifts")
+    .select("*");
 
+if (error) {
+    console.error("Ошибка загрузки смен:", error.message);
+    return;
+}
 
-renderHome();
-loadPointsFromSupabase();
-loadEmployeesFromSupabase();
+shifts = {};
+
+data.forEach(function(shift) {
+
+    const point = pointRows.find(function(p) {
+        return p.id === shift.point_id;
+    });
+
+    const employee = employeeRows.find(function(e) {
+        return e.id === shift.employee_id;
+    });
+
+    if (!point || !employee) return;
+
+    if (!shifts[point.name]) {
+        shifts[point.name] = {};
+    }
+
+    if (!shifts[point.name][shift.shift_date]) {
+        shifts[point.name][shift.shift_date] = [];
+    }
+
+    shifts[point.name][shift.shift_date].push(employee.name);
+
+});
+
+renderCalendar();
+}
+
+async function startApp() {
+    await loadPointsFromSupabase();
+    await loadEmployeesFromSupabase();
+    await loadShiftsFromSupabase();
+}
+
+startApp();
 </script>
 
 </body>
