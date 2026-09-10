@@ -117,10 +117,19 @@ button {
     background: white;
     width: 100%;
     max-width: 400px;
+    max-height: 90vh;
     border-radius: 18px;
     padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
-
+#modalEmployees {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    margin-bottom: 10px;
+}
 .employee-choice {
     padding: 12px;
     background: #f3eef8;
