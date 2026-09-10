@@ -778,29 +778,70 @@ renderEmployeeChoices();
 }
 
 
-function saveShift() {
+async function saveShift() {
+const pointRow = pointRows.find(
+    point => point.name === selectedPoint
+);
 
-if (!shifts[selectedPoint]) {
-
-shifts[selectedPoint] = {};
-
+if (!pointRow) {
+    alert("Ошибка: точка не найдена.");
+    return;
 }
 
+const pointId = pointRow.id;
+
+// Удаляем старые смены этой точки на эту дату
+const { error: deleteError } = await supabaseClient
+    .from("shifts")
+    .delete()
+    .eq("point_id", pointId)
+    .eq("shift_date", selectedDateKey);
+
+if (deleteError) {
+    alert("Ошибка удаления старой смены: " + deleteError.message);
+    return;
+}
+
+// Если сотрудники выбраны — создаём новые записи
+if (selectedEmployees.length > 0) {
+
+    const shiftRecords = selectedEmployees
+        .map(name => {
+            const employee = employeeRows.find(
+                emp => emp.name === name
+            );
+
+            if (!employee) return null;
+
+            return {
+                point_id: pointId,
+                employee_id: employee.id,
+                shift_date: selectedDateKey
+            };
+        })
+        .filter(record => record !== null);
+
+    const { error: insertError } = await supabaseClient
+        .from("shifts")
+        .insert(shiftRecords);
+
+    if (insertError) {
+        alert("Ошибка сохранения смены: " + insertError.message);
+        return;
+    }
+}
+
+// Пока обновляем и старый объект, чтобы календарь сразу показал изменения
+if (!shifts[selectedPoint]) {
+    shifts[selectedPoint] = {};
+}
 
 shifts[selectedPoint][selectedDateKey] =
-selectedEmployees;
-
-
-saveData();
-
+    selectedEmployees;
 
 closeModal();
-
-
 renderCalendar();
-
 }
-
 
 function closeModal() {
 
