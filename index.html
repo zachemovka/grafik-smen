@@ -4,7 +4,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>График смен</title>
+.password-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: #f5f2f8;
+}
 
+.password-card {
+    width: 100%;
+    max-width: 360px;
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+}
+
+.password-card input {
+    width: 100%;
+    padding: 12px;
+    margin: 12px 0;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 18px;
+}
+
+.password-error {
+    color: #c0392b;
+    min-height: 20px;
+    font-size: 14px;
+}
 <style>
 * {
     box-sizing: border-box;
@@ -146,8 +179,26 @@ button {
 </head>
 
 <body>
+<form class="password-card" onsubmit="checkPassword(); return false;">
 
-<div class="app">
+    <h2>🔒 График смен</h2>
+
+    <p>Введите пароль для входа</p>
+
+    <input
+        type="password"
+        id="sitePassword"
+        placeholder="Пароль"
+    >
+
+    <p id="passwordError" class="password-error"></p>
+
+    <button class="purple" type="submit">
+        Войти
+    </button>
+
+</form>
+<div class="app" id="mainApp" style="display:none">
 
 <h1>🗓️ График смен</h1>
 
@@ -899,12 +950,39 @@ renderCalendar();
 }
 
 async function startApp() {
-    await loadPointsFromSupabase();
-    await loadEmployeesFromSupabase();
-    await loadShiftsFromSupabase();
+await loadPointsFromSupabase();
+await loadEmployeesFromSupabase();
+await loadShiftsFromSupabase();
 }
 
-startApp();
+function checkPassword() {
+const password = document.getElementById("sitePassword").value;
+
+if (password === "112233") {
+    localStorage.setItem("grafikSiteAccess", "1");
+
+    document.getElementById("passwordScreen").style.display = "none";
+    document.getElementById("mainApp").style.display = "block";
+
+    startApp();
+} else {
+    document.getElementById("passwordError").innerText =
+        "Неверный пароль. Попробуйте ещё раз.";
+
+    document.getElementById("sitePassword").value = "";
+}
+}
+
+function initAccess() {
+if (localStorage.getItem("grafikSiteAccess") === "1") {
+document.getElementById("passwordScreen").style.display = "none";
+document.getElementById("mainApp").style.display = "block";
+
+    startApp();
+}
+}
+
+initAccess();
 </script>
 
 </body>
