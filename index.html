@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>График смен</title>
+
+<style>
 .password-screen {
     position: fixed;
     inset: 0;
@@ -37,8 +39,7 @@
     color: #c0392b;
     min-height: 20px;
     font-size: 14px;
-}
-<style>
+}    
 * {
     box-sizing: border-box;
 }
@@ -179,6 +180,9 @@ button {
 </head>
 
 <body>
+
+<div id="passwordScreen" class="password-screen">
+
 <form class="password-card" onsubmit="checkPassword(); return false;">
 
     <h2>🔒 График смен</h2>
@@ -198,6 +202,7 @@ button {
     </button>
 
 </form>
+    </div>
 <div class="app" id="mainApp" style="display:none">
 
 <h1>🗓️ График смен</h1>
